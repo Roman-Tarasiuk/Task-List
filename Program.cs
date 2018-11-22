@@ -30,7 +30,7 @@ namespace TaskList
             try
             {
                 Console.WriteLine("* Gathering info...");
-                Program.LaunchSystemCommand(argsObj);
+                Program.LaunchTheSystemTaskList(argsObj);
                 // Process.Start("cmd", " /c chcp 1251 & tasklist /v >tasks.txt").WaitForExit();
 
                 Console.WriteLine("* Processing the task list...");
@@ -47,7 +47,7 @@ namespace TaskList
         }
 
         // https://stackoverflow.com/questions/9679375/run-an-exe-from-c-sharp-code
-        private static void LaunchSystemCommand(Args argsObj)
+        private static void LaunchTheSystemTaskList(Args argsObj)
         {
             var encoding = Console.OutputEncoding;
             Console.OutputEncoding = Encoding.GetEncoding(1251);
@@ -75,7 +75,7 @@ namespace TaskList
                     
                     if (exeProcess.ExitCode != 0)
                     {
-                        throw new Exception("** Command run failed. Cannot create/write to the 'tasks.txt' file.");
+                        throw new Exception("** Command run failed. (Maybe cannot create/write to the 'tasks.txt' file.)");
                     }
                 }
             }
