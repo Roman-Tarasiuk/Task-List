@@ -50,37 +50,32 @@ namespace ProgramArgs
                 var arg = programArgs[i];
                 arg = arg.Replace(" ", "").ToLower();
                 
-                if (arg == "createnowindowtrue")
+                switch (arg)
                 {
-                    result.CreateNoWindow = true;
-                }
-                else if (arg == "createnowindowfalse")
-                {
-                    result.CreateNoWindow = false;
-                }
-                else if (arg == "useshellexecutetrue")
-                {
-                    result.UseShellExecute = true;
-                }
-                else if (arg == "useshellexecutefalse")
-                {
-                    result.UseShellExecute = false;
-                }
-                else if (arg == "v")
-                {
-                    result.V = true;
-                }
-                else if (arg == "orderbyname")
-                {
-                    result.Sort = Sort.Name;
-                }
-                else if (arg == "orderbymemorysize")
-                {
-                    result.Sort = Sort.MemorySize;
-                }
-                else if (arg == "orderbymemorysizedescending")
-                {
-                    result.Sort = Sort.MemorySizeDescending;
+                    case "createnowindowtrue":
+                        result.CreateNoWindow = true;
+                        break;
+                    case "createnowindowfalse":
+                        result.CreateNoWindow = false;
+                        break;
+                    case "useshellexecutetrue":
+                        result.UseShellExecute = true;
+                        break;
+                    case "useshellexecutefalse":
+                        result.UseShellExecute = false;
+                        break;
+                    case "v":
+                        result.V = true;
+                        break;
+                    case "orderbyname":
+                        result.Sort = Sort.Name;
+                        break;
+                    case "orderbymemorysize":
+                        result.Sort = Sort.MemorySize;
+                        break;
+                    case "orderbymemorysizedescending":
+                        result.Sort = Sort.MemorySizeDescending;
+                        break;
                 }
             }
             
