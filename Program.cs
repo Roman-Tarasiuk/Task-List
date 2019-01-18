@@ -20,6 +20,7 @@ namespace TaskList
         private static void Run(string[] args)
         {
             var argsObj = Args.ParseArgs(args);
+            var fileName = GetTemporaryFileName(10, "tmp");
             
             if (argsObj.Help == true)
             {
@@ -30,11 +31,11 @@ namespace TaskList
             try
             {
                 Console.WriteLine("* Gathering info...");
-                Program.LaunchTheSystemTaskList(argsObj);
+                LaunchTheSystemTaskList(argsObj, fileName);
                 // Process.Start("cmd", " /c chcp 1251 & tasklist /v >tasks.txt").WaitForExit();
 
                 Console.WriteLine("* Processing the task list...");
-                ProcessTaskList(argsObj);
+                ProcessTaskList(argsObj, fileName);
 
                 Console.WriteLine("* Successfully finished.");
                 Console.WriteLine("\n(Memory size is in kilobytes.)");
@@ -44,10 +45,17 @@ namespace TaskList
                 Console.WriteLine("Run Error:");
                 Console.WriteLine(exception);
             }
+            finally
+            {
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+            }
         }
 
         // https://stackoverflow.com/questions/9679375/run-an-exe-from-c-sharp-code
-        private static void LaunchTheSystemTaskList(Args argsObj)
+        private static void LaunchTheSystemTaskList(Args argsObj, string fileName)
         {
             var encoding = Console.OutputEncoding;
             Console.OutputEncoding = Encoding.GetEncoding(1251);
@@ -65,7 +73,7 @@ namespace TaskList
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = " /c chcp 1251 & tasklist "
                                 + (argsObj.V == true ? "/v " : "")
-                                + ">tasks.txt";
+                                + " >" + fileName;
 
             try
             {
@@ -75,7 +83,7 @@ namespace TaskList
                     
                     if (exeProcess.ExitCode != 0)
                     {
-                        throw new Exception("** Command run failed. (Maybe cannot create/write to the 'tasks.txt' file.)");
+                        throw new Exception("** Command run failed. (Maybe cannot create/write to the '" + fileName + "' file.)");
                     }
                 }
             }
@@ -87,10 +95,10 @@ namespace TaskList
             Console.OutputEncoding = encoding;
         }
 
-        private static void ProcessTaskList(Args argsObj)
+        private static void ProcessTaskList(Args argsObj, string fileName)
         {
             string fileContent = null;
-            using (StreamReader reader = new StreamReader(Path.Combine("tasks.txt"),
+            using (StreamReader reader = new StreamReader(Path.Combine(fileName),
                    Encoding.GetEncoding(1251)))
             {
                 fileContent = reader.ReadToEnd();
@@ -150,20 +158,17 @@ namespace TaskList
                     });
                 }
 
-                using (StreamWriter writer = new StreamWriter(Path.Combine("tasks.txt")))
-                {
-                    writer.WriteLine(header);
+                Console.WriteLine(header);
 
-                    for (var i = 0; i < list.Count; i++)
-                    {                        
-                        writer.WriteLine(list[i].Item1);
-                    }
+                for (var i = 0; i < list.Count; i++)
+                {                        
+                    Console.WriteLine(list[i].Item1);
+                }
 
-                    writer.WriteLine();
-                    writer.WriteLine("========================= ======== ================ =========== =SUBTOTAL(9;R2C:R[-2]C)");
-                    writer.WriteLine("========================= ======== ================ =========== =R[-1]C/1024");
-                    writer.WriteLine("========================= ======== ================ =========== =R[-1]C/1024");
-                }            
+                Console.WriteLine();
+                Console.WriteLine("========================= ======== ================ =========== =SUBTOTAL(9;R2C:R[-2]C)");
+                Console.WriteLine("========================= ======== ================ =========== =R[-1]C/1024");
+                Console.WriteLine("========================= ======== ================ =========== =R[-1]C/1024");
             }
         }
         
@@ -175,5 +180,32 @@ namespace TaskList
             Console.WriteLine("   TaskList_.exe ?|/?|-h|-help|--help");
             Console.WriteLine("       Displays usage.");
         }
-    }
+ 
+        private static string GenerateTemporaryFileName(int length, string extension)
+        {
+            var symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+            var R = new Random();
+            var Name = new StringBuilder();
+
+            for (var i = 0; i < length; i++)
+            {
+                Name.Append(symbols[R.Next(0, symbols.Length)]);
+            }
+
+            return Name.ToString() + "." + extension;
+        }
+
+        private static string GetTemporaryFileName(int length, string extension)
+        {
+            string result = string.Empty;
+            
+            do
+            {
+                result = GenerateTemporaryFileName(length, extension);
+            }
+            while (File.Exists(result));
+
+            return result;
+        }
+   }
 }
